@@ -1,0 +1,7 @@
+name: Background Image Tools
+type: module
+description: A toolkit to add background images to pages.
+core_version_requirement: ^8.8.0 || ^9.0
+package: Media
+dependencies:
+  - drupal:media

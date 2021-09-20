@@ -1,0 +1,19 @@
+{
+  "name": "drupal/background_image_tools",
+  "description": "A toolkit to add background images to pages.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev",
+  "homepage": "https://www.drupal.org/project/background_image_tools",
+  "authors": [
+      {
+          "name": "James Nettik",
+          "email": "james.nettik@gmail.com"
+      }
+  ],
+  "support": {
+      "issues": "https://www.drupal.org/project/issues/background_image_tools",
+      "source": "https://git.drupalcode.org/project/background_image_tools"
+  },
+  "require": {}
+}

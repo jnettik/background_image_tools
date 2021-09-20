@@ -1,0 +1,4 @@
+services:
+  background_image_tools.media:
+    class: \Drupal\backgrounds\Services\BackgroundMediaRenderer
+    arguments: ['@entity_type.manager', '@uuid']
