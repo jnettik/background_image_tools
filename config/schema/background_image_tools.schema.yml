@@ -1,7 +1,10 @@
 field.formatter.settings.background_image_tools_media:
   type: mapping
-  label: Background Media image formatter settings
+  label: Background Media formatter settings.
   mapping:
-    foo:
+    selector:
       type: string
-      label: Foo
+      label: CSS Selector
+    image_style:
+      type: string
+      label: Image Style

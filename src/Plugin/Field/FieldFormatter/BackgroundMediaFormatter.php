@@ -108,7 +108,7 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
 
     $form['selector'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Selector'),
+      '#title' => $this->t('CSS Selector'),
       '#default_value' => $this->t('Set the CSS selector to style the image to.'),
       '#default_value' => $settings['selector'],
     ];
