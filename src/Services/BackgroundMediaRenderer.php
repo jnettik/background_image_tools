@@ -110,7 +110,7 @@ class BackgroundMediaRenderer {
         '#tag' => 'style',
         '#value' => $css,
       ],
-      "backgrounds_{$entity->id()}_{$this->uuid->generate()}",
+      "background_image_tools_{$entity->id()}_{$this->uuid->generate()}",
     ];
   }
 

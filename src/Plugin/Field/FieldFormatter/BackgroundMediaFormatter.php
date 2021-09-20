@@ -3,7 +3,6 @@
 namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
 
 use Drupal\background_image_tools\Services\BackgroundMediaRenderer;
-use Drupal\background_image_tools\Services\BackgroundsBackgroundImageRenderer;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
@@ -48,7 +47,7 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
    *   The view mode.
    * @param array $third_party_settings
    *   Any third party settings.
-   * @param \Drupal\backgrounds\Services\BackgroundMediaRenderer $background_renderer
+   * @param \Drupal\background_image_tools\Services\BackgroundMediaRenderer $background_renderer
    *   Background renderer service.
    */
   public function __construct(
@@ -77,7 +76,12 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     return new static(
       $plugin_id,
       $plugin_definition,
@@ -129,6 +133,7 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
    */
   public function settingsSummary() {
     $settings = $this->getSettings();
+    $summary = parent::settingsSummary();
 
     if ($settings['selector']) {
       $summary[] = $this->t('CSS Selector: @selector', ['@selector' => $settings['selector']]);
