@@ -3,6 +3,7 @@
 namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
 
 use Drupal\background_image_tools\Services\BackgroundMediaRenderer;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
@@ -31,6 +32,13 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
   protected $backgroundRenderer;
 
   /**
+   * Drupal entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Construct a BackgroundImageFormatter object.
    *
    * @param string $plugin_id
@@ -49,6 +57,8 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
    *   Any third party settings.
    * @param \Drupal\background_image_tools\Services\BackgroundMediaRenderer $background_renderer
    *   Background renderer service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The EntityTypeManager object.
    */
   public function __construct(
     $plugin_id,
@@ -58,7 +68,8 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
     $label,
     $view_mode,
     array $third_party_settings,
-    BackgroundMediaRenderer $background_renderer
+    BackgroundMediaRenderer $background_renderer,
+    EntityTypeManagerInterface $entity_type_manager
   ) {
     parent::__construct(
       $plugin_id,
@@ -71,6 +82,7 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
     );
 
     $this->backgroundRenderer = $background_renderer;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -90,7 +102,8 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('background_image_tools.media')
+      $container->get('background_image_tools.media'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -117,12 +130,12 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
       '#default_value' => $settings['selector'],
     ];
 
-    // @todo pull in dynamic list of styles.
     $form['image_style'] = [
-      '#type' => 'textfield',
+      '#type' => 'select',
       '#title' => $this->t('Image Style'),
       '#default_value' => $this->t('Pick which image style should render this image.'),
       '#default_value' => $settings['image_style'],
+      '#options' => $this->getImageStyles(),
     ];
 
     return $form;
@@ -135,13 +148,13 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
     $settings = $this->getSettings();
     $summary = parent::settingsSummary();
 
-    if ($settings['selector']) {
-      $summary[] = $this->t('CSS Selector: @selector', ['@selector' => $settings['selector']]);
-    }
+    $summary[] = isset($settings['selector'])
+      ? $this->t('CSS Selector: @selector', ['@selector' => $settings['selector']])
+      : $this->t('CSS Selector: None');
 
-    if ($settings['image_style']) {
-      $summary[] = $this->t('Image Style: @image_style', ['@image_style' => $settings['image_style']]);
-    }
+    $summary[] = isset($settings['image_style'])
+      ? $this->t('Image Style: @image_style', ['@image_style' => $this->getImageStyleLabel($settings['image_style'])])
+      : $this->t('Image Style: None');
 
     return $summary;
   }
@@ -159,6 +172,40 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
     }
 
     return $element;
+  }
+
+  /**
+   * Get an array of all image style info.
+   *
+   * @return array
+   *   The image style info.
+   */
+  protected function getImageStyles() {
+    /** @var \Drupal\image\ImageStyleStorage $image_style_storage */
+    $image_style_storage = $this->entityTypeManager->getStorage('image_style');
+    $image_styles = $image_style_storage->loadMultiple();
+    $styles = [];
+
+    /** @var \Drupal\image\ImageStyleInterface $style */
+    foreach ($image_styles as $machine_name => $style) {
+      $styles[$machine_name] = $style->label();
+    }
+
+    return $styles;
+  }
+
+  /**
+   * Get human readable name of an image style.
+   *
+   * @param string $image_style
+   *   Machine name of an image style.
+   *
+   * @return string
+   *   The image style label.
+   */
+  protected function getImageStyleLabel($image_style) {
+    $image_styles = $this->getImageStyles();
+    return $image_styles[$image_style] ?? $this->t('None');
   }
 
 }
