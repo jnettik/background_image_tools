@@ -163,11 +163,21 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    $settings = $this->getSettings();
     $element = [];
 
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
     foreach ($items as $delta => $item) {
+      $styles = $this->backgroundRenderer->getStyles(
+        $settings['selector'],
+        $item->get('entity')->getValue(),
+        $settings['image_style']
+      );
+
       $element[$delta] = [
-        '#markup' => $item->value,
+        '#attached' => [
+          'html_head' => [$styles],
+        ],
       ];
     }
 
