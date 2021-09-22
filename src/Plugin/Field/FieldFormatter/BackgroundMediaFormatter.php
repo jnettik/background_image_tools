@@ -162,26 +162,32 @@ class BackgroundMediaFormatter extends FormatterBase implements ContainerFactory
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function view(FieldItemListInterface $items, $langcode = NULL) {
     $settings = $this->getSettings();
-    $element = [];
+    $styles = [];
 
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
-    foreach ($items as $delta => $item) {
-      $styles = $this->backgroundRenderer->getStyles(
+    foreach ($items as $item) {
+      $styles[] = $this->backgroundRenderer->getStyles(
         $settings['selector'],
         $item->get('entity')->getValue(),
         $settings['image_style']
       );
-
-      $element[$delta] = [
-        '#attached' => [
-          'html_head' => [$styles],
-        ],
-      ];
     }
 
-    return $element;
+    return [
+      '#attached' => [
+        'html_head' => $styles,
+      ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    // Prevent field from rendering.
+    return [];
   }
 
   /**
