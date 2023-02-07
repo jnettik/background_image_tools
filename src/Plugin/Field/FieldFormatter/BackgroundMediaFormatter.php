@@ -2,6 +2,8 @@
 
 namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
+
 /**
  * Render field as background image.
  *
@@ -14,6 +16,12 @@ namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
  * )
  */
 class BackgroundMediaFormatter extends BackgroundFormatterBase {
-  // Passthrough base class, but keep this in case we need more specific
-  // functionality for the formatter.
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return ($field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media');
+  }
+
 }
