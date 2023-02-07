@@ -6,13 +6,13 @@ namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
  * Render field as background image.
  *
  * @FieldFormatter(
- *   id = "background_image_tools_media",
+ *   id = "background_image_tools_file",
  *   label = @Translation("Background Image"),
  *   field_types = {
- *     "entity_reference"
+ *     "image"
  *   }
  * )
  */
-class BackgroundMediaFormatter extends BackgroundFormatterBase {
+class BackgroundFileFormatter extends BackgroundFormatterBase {
 
 }
