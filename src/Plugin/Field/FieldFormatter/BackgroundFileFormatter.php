@@ -14,5 +14,6 @@ namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
  * )
  */
 class BackgroundFileFormatter extends BackgroundFormatterBase {
-
+  // Passthrough base class, but keep this in case we need more specific
+  // functionality for the formatter.
 }
