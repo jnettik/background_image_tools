@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\background_image_tools\Services;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -64,7 +66,7 @@ class BackgroundMediaRenderer {
    * @return string
    *   The file path.
    */
-  protected function getFilePath(ContentEntityInterface $entity, string $image_style) {
+  protected function getFilePath(ContentEntityInterface $entity, string $image_style) : string {
     /** @var \Drupal\file\FileInterface $file */
     $file = $entity;
 
@@ -95,7 +97,7 @@ class BackgroundMediaRenderer {
    * @return string
    *   The CSS to be rendered.
    */
-  protected function generateStyles(string $selector, string $file_path) {
+  protected function generateStyles(string $selector, string $file_path) : string {
     // @todo It's possible to pass this off to Twig which would make writing
     // the CSS easier.
     $css = sprintf('%s {', $selector);
@@ -122,7 +124,7 @@ class BackgroundMediaRenderer {
     string $selector,
     ContentEntityInterface $entity,
     string $image_style
-  ) {
+  ) : array {
     $image_url = $this->getFilePath($entity, $image_style);
     $css = $this->generateStyles($selector, $image_url);
 

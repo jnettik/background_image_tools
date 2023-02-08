@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
 
 use Drupal\background_image_tools\Services\BackgroundMediaRenderer;
@@ -85,7 +87,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
     array $configuration,
     $plugin_id,
     $plugin_definition
-  ) {
+  ) : static {
     return new static(
       $plugin_id,
       $plugin_definition,
@@ -102,7 +104,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
+  public static function defaultSettings() : array {
     return [
       'selector' => '',
       'image_style' => '',
@@ -112,7 +114,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state) : array {
     $settings = $this->getSettings();
 
     $form['selector'] = [
@@ -136,7 +138,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
+  public function settingsSummary() : array {
     $settings = $this->getSettings();
     $summary = parent::settingsSummary();
 
@@ -154,7 +156,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public function view(FieldItemListInterface $items, $langcode = NULL) {
+  public function view(FieldItemListInterface $items, $langcode = NULL) : array {
     $settings = $this->getSettings();
     $styles = [];
 
@@ -177,7 +179,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, $langcode) : array {
     // Prevent field from rendering.
     return [];
   }
@@ -188,7 +190,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    * @return array
    *   The image style info.
    */
-  protected function getImageStyles() {
+  protected function getImageStyles() : array {
     /** @var \Drupal\image\ImageStyleStorage $image_style_storage */
     $image_style_storage = $this->entityTypeManager->getStorage('image_style');
     $image_styles = $image_style_storage->loadMultiple();
@@ -211,7 +213,7 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    * @return string
    *   The image style label.
    */
-  protected function getImageStyleLabel($image_style) {
+  protected function getImageStyleLabel($image_style) : string {
     $image_styles = $this->getImageStyles();
     return $image_styles[$image_style] ?? $this->t('None');
   }
