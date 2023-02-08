@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -210,10 +211,10 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    * @param string $image_style
    *   Machine name of an image style.
    *
-   * @return string
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string
    *   The image style label.
    */
-  protected function getImageStyleLabel($image_style) : string {
+  protected function getImageStyleLabel(string $image_style) : TranslatableMarkup|string {
     $image_styles = $this->getImageStyles();
     return $image_styles[$image_style] ?? $this->t('None');
   }
