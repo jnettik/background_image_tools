@@ -12,7 +12,7 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 /**
  * Class BackgroundMediaRenderer.
  */
-class BackgroundMediaRenderer {
+class BackgroundMediaRenderer implements BackgroundMediaRendererInterface {
 
   /**
    * Drupal entity type manager service.
@@ -108,23 +108,9 @@ class BackgroundMediaRenderer {
   }
 
   /**
-   * Renders the CSS for the background image.
-   *
-   * @param string $selector
-   *   The CSS selector to use.
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The Media or File (Image) entity to use for the background.
-   * @param string $image_style
-   *   The ImageStyle to use for the image.
-   *
-   * @return array
-   *   Render array to be attached to site `head`.
+   * {@inheritdoc}
    */
-  public function getStyles(
-    string $selector,
-    ContentEntityInterface $entity,
-    string $image_style
-  ) : array {
+  public function getStyles(string $selector, ContentEntityInterface $entity, string $image_style) : array {
     $image_url = $this->getFilePath($entity, $image_style);
     $css = $this->generateStyles($selector, $image_url);
 
