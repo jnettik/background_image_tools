@@ -12,6 +12,8 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\file\FileInterface;
+use Drupal\media\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -163,11 +165,15 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
 
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
     foreach ($items as $item) {
-      $styles[] = $this->backgroundRenderer->getStyles(
-        $settings['selector'],
-        $item->get('entity')->getValue(),
-        $settings['image_style']
-      );
+      $entity = $item->get('entity')->getValue();
+
+      if ($this->isImage($entity)) {
+        $styles[] = $this->backgroundRenderer->getStyles(
+          $settings['selector'],
+          $entity,
+          $settings['image_style']
+        );
+      }
     }
 
     return [
@@ -183,6 +189,21 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   public function viewElements(FieldItemListInterface $items, $langcode) : array {
     // Prevent field from rendering.
     return [];
+  }
+
+  /**
+   * A methoed that can get used to filter out entities from being used.
+   *
+   * Defaults to TRUE unless method is overridden.
+   *
+   * @param \Drupal\media\MediaInterface|Drupal\file\FileInterface $entity
+   *   The entity to check.
+   *
+   * @return bool
+   *   Whether this passes the checks.
+   */
+  public function isImage(MediaInterface|FileInterface $entity) : bool {
+    return TRUE;
   }
 
   /**
