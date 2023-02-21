@@ -6,12 +6,14 @@ namespace Drupal\background_image_tools\Plugin\Field\FieldFormatter;
 
 use Drupal\background_image_tools\Services\BackgroundMediaRenderer;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Utility\Token;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,6 +38,20 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
   protected $entityTypeManager;
 
   /**
+   * Drupal module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Drupal token service.
+   *
+   * @var \Drupal\Core\Utility\Token
+   */
+  protected $token;
+
+  /**
    * Construct a BackgroundImageFormatter object.
    *
    * @param string $plugin_id
@@ -56,6 +72,10 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    *   Background renderer service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The EntityTypeManager object.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The ModuleHandler object.
+   * @param \Drupal\Core\Utility\Token $token
+   *   The Token object.
    */
   public function __construct(
     $plugin_id,
@@ -66,7 +86,9 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
     $view_mode,
     array $third_party_settings,
     BackgroundMediaRenderer $background_renderer,
-    EntityTypeManagerInterface $entity_type_manager
+    EntityTypeManagerInterface $entity_type_manager,
+    ModuleHandlerInterface $module_handler,
+    Token $token
   ) {
     parent::__construct(
       $plugin_id,
@@ -80,6 +102,8 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
 
     $this->backgroundRenderer = $background_renderer;
     $this->entityTypeManager = $entity_type_manager;
+    $this->moduleHandler = $module_handler;
+    $this->token = $token;
   }
 
   /**
@@ -100,7 +124,9 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('background_image_tools.media'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('module_handler'),
+      $container->get('token')
     );
   }
 
@@ -119,21 +145,29 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    */
   public function settingsForm(array $form, FormStateInterface $form_state) : array {
     $settings = $this->getSettings();
+    $token_support = $this->moduleHandler->moduleExists('token');
 
     $form['selector'] = [
       '#type' => 'textfield',
       '#title' => $this->t('CSS Selector'),
-      '#default_value' => $this->t('Set the CSS selector to style the image to.'),
+      '#description' => $this->t('Set the CSS selector to style the image to. This field supports Tokens.'),
       '#default_value' => $settings['selector'],
     ];
 
     $form['image_style'] = [
       '#type' => 'select',
       '#title' => $this->t('Image Style'),
-      '#default_value' => $this->t('Pick which image style should render this image.'),
+      '#description' => $this->t('Pick which image style should render this image.'),
       '#default_value' => $settings['image_style'],
       '#options' => $this->getImageStyles(),
     ];
+
+    if ($token_support) {
+      $form['tokens'] = [
+        '#theme' => 'token_tree_link',
+        '#token_types' => [$form['#entity_type']],
+      ];
+    }
 
     return $form;
   }
@@ -168,8 +202,14 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
       $entity = $item->get('entity')->getValue();
 
       if ($this->isImage($entity)) {
+        $host_entity = $item->getEntity();
+        $host_entity_type = $host_entity->getEntityTypeId();
+        $selector = $this->token->replace($settings['selector'], [
+          $host_entity_type => $host_entity,
+        ]);
+
         $styles[] = $this->backgroundRenderer->getStyles(
-          $settings['selector'],
+          $selector,
           $entity,
           $settings['image_style']
         );
