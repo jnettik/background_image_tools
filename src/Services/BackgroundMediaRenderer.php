@@ -91,17 +91,19 @@ class BackgroundMediaRenderer implements BackgroundMediaRendererInterface {
    *
    * @param string $selector
    *   The selector for the CSS.
-   * @param string $file_path
-   *   The path to the image file.
+   * @param array $file_paths
+   *   An array of image paht URLs to use.
    *
    * @return string
    *   The CSS to be rendered.
    */
-  protected function generateStyles(string $selector, string $file_path) : string {
-    // @todo It's possible to pass this off to Twig which would make writing
-    // the CSS easier.
+  protected function generateStyles(string $selector, array $file_paths) : string {
+    $urls = array_map(function ($path) {
+      return sprintf('url(\'%s\')', $this->fileGenerator->transformRelative($path));
+    }, $file_paths);
+
     $css = sprintf('%s {', $selector);
-    $css .= sprintf('background-image: url(\'%s\');', $this->fileGenerator->transformRelative($file_path));
+    $css .= sprintf('background-image: %s;', implode(', ', $urls));
     $css .= '}';
 
     return $css;
@@ -110,16 +112,17 @@ class BackgroundMediaRenderer implements BackgroundMediaRendererInterface {
   /**
    * {@inheritdoc}
    */
-  public function getStyles(string $selector, ContentEntityInterface $entity, string $image_style) : array {
-    $image_url = $this->getFilePath($entity, $image_style);
-    $css = $this->generateStyles($selector, $image_url);
+  public function getStyles(string $selector, array $entities, string $image_style) : array {
+    $image_paths = array_map(function ($entity) use ($image_style) {
+      return $this->getFilePath($entity, $image_style);
+    }, $entities);
 
     return [
       [
         '#tag' => 'style',
-        '#value' => $css,
+        '#value' => $this->generateStyles($selector, $image_paths),
       ],
-      "background_image_tools_{$entity->id()}_{$this->uuid->generate()}",
+      "background_image_tools__{$this->uuid->generate()}",
     ];
   }
 

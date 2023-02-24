@@ -14,7 +14,7 @@ interface BackgroundMediaRendererInterface {
    *
    * @param string $selector
    *   The CSS selector to use.
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface[] $entity
    *   The Media or File (Image) entity to use for the background.
    * @param string $image_style
    *   The ImageStyle to use for the image.
@@ -22,6 +22,6 @@ interface BackgroundMediaRendererInterface {
    * @return array
    *   Render array to be attached to site `head`.
    */
-  public function getStyles(string $selector, ContentEntityInterface $entity, string $image_style);
+  public function getStyles(string $selector, array $entity, string $image_style);
 
 }

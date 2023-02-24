@@ -195,30 +195,30 @@ abstract class BackgroundFormatterBase extends FormatterBase implements Containe
    */
   public function view(FieldItemListInterface $items, $langcode = NULL) : array {
     $settings = $this->getSettings();
-    $styles = [];
+    $entities = [];
+    $host_entity = $items->getEntity();
+    $host_entity_type = $host_entity->getEntityTypeId();
+    $selector = $this->token->replace($settings['selector'], [
+      $host_entity_type => $host_entity,
+    ]);
 
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
     foreach ($items as $item) {
       $entity = $item->get('entity')->getValue();
 
       if ($this->isImage($entity)) {
-        $host_entity = $item->getEntity();
-        $host_entity_type = $host_entity->getEntityTypeId();
-        $selector = $this->token->replace($settings['selector'], [
-          $host_entity_type => $host_entity,
-        ]);
-
-        $styles[] = $this->backgroundRenderer->getStyles(
-          $selector,
-          $entity,
-          $settings['image_style']
-        );
+        $entities[] = $entity;
       }
     }
 
+    $styles = $this->backgroundRenderer->getStyles(
+      $selector,
+      $entities,
+      $settings['image_style']
+    );
+
     return [
       '#attached' => [
-        'html_head' => $styles,
+        'html_head' => [$styles],
       ],
     ];
   }
